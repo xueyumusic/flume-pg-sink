@@ -2,6 +2,7 @@ package flumepgsink;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 
 import org.apache.flume.Channel;
@@ -11,12 +12,17 @@ import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class FlumePgSink extends AbstractSink implements Configurable {
  
 	private String queueSize;
 	private String resultFile;
 	private PrintWriter out;
+        private SqlSession session;
     	
 	
 	
@@ -34,6 +40,9 @@ public class FlumePgSink extends AbstractSink implements Configurable {
 			String[] dsarr = ds.split(" ");
 			System.out.println(dsarr[0]);
 			out.println(dsarr[0]);
+
+                        session.insert("flumepgsink.FlumePgMapper.insertContent", dsarr[0]);
+                        session.commit();
 			
 			txn.commit();
 			status = Status.READY;
@@ -49,6 +58,11 @@ public class FlumePgSink extends AbstractSink implements Configurable {
 		return status;
 	}
 
+        protected void finalize() {
+               System.out.println("#############over finalized");
+               session.close();
+        }
+
 	@Override
 	public void configure(Context context) {
 		String queueSize = context.getString("queueSize", "10000");
@@ -63,6 +77,21 @@ public class FlumePgSink extends AbstractSink implements Configurable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		try {
+		  String resource = "flumepgsink/mybatis-config.xml";
+		  InputStream inputmybatisstream = Resources.getResourceAsStream(resource);
+		  SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputmybatisstream);
+		  SqlSession session = sqlSessionFactory.openSession();
+                  this.session = session;
+
+		  String firstContent = session.selectOne("flumepgsink.FlumePgMapper.selectFirst", 1);
+	          System.out.println("####!!!!  First mybatis:" + firstContent);
+					  
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 }
