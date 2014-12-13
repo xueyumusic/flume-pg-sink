@@ -4,6 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Map;
+import java.util.Date;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -41,12 +43,19 @@ public class FlumePgSink extends AbstractSink implements Configurable {
 			System.out.println(dsarr[0]);
 			out.println(dsarr[0]);
 
-                        session.insert("flumepgsink.FlumePgMapper.insertContent", dsarr[0]);
+                        //session.insert("flumepgsink.FlumePgMapper.insertContent", dsarr[0]);
+                        RawLog curobj = new RawLog();
+                        curobj.setClasstype("xueyuclasstype");
+                        curobj.setTime(new Date());
+                        session.insert("flumepgsink.FlumePgMapper.insertContent", curobj);
+                        System.out.println("###insert obj");
                         session.commit();
 			
 			txn.commit();
 			status = Status.READY;
 		} catch (Throwable t) {
+                        //System.out.println("###throw exception");
+                        //t.printStackTrace();
 			txn.rollback();
 			status = Status.BACKOFF;
 			if (t instanceof Error) {
@@ -85,8 +94,13 @@ public class FlumePgSink extends AbstractSink implements Configurable {
 		  SqlSession session = sqlSessionFactory.openSession();
                   this.session = session;
 
-		  String firstContent = session.selectOne("flumepgsink.FlumePgMapper.selectFirst", 1);
-	          System.out.println("####!!!!  First mybatis:" + firstContent);
+		  //String firstContent = session.selectOne("flumepgsink.FlumePgMapper.selectFirst", 1);
+		  //Map<String, String> selectmap = session.selectOne("flumepgsink.FlumePgMapper.selectFirst", 1);
+	          //System.out.println("####!!!!  First mybatis:" + firstContent);
+                  /*for ( String key : selectmap.keySet() ) {
+                    String value = selectmap.get(key);
+                    System.out.println("#####selectmap key:" + key + "  value:" + value);
+                  }*/
 					  
 		} catch (IOException e) {
 			e.printStackTrace();

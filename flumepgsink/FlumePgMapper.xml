@@ -3,11 +3,27 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="flumepgsink.FlumePgMapper">
-  <select id="selectFirst" resultType="String">
-    select content from flumetest where id = #{id}
-  </select>
 
-  <insert id="insertContent">
-    insert into flumetest (content) values ( #{content} )
+  <resultMap id="rawlogid" type="flumepgsink.RawLog">
+     <id property="id" column="id"/>
+     <result property="classtype" column="class"/>
+     <result property="classic" column="classic"/>
+     <result property="ip" column="ip"/>
+     <result property="port" column="port"/>
+     <result property="type" column="type"/>
+     <result property="org_id" column="org_id"/>
+     <result property="counts" column="counts"/>
+     <result property="forward_time" column="forward_time"/>
+     <result property="action" column="action"/>
+     <result property="message" column="message"/>
+     <result property="time" column="time"/>
+  </resultMap>
+  <!-- <select id="selectFirst" resultType="String"> -->
+  <!--<select id="selectFirst" resultType="map">
+    select id from flumetest where id = #{id}
+  </select>  -->
+
+  <insert id="insertContent" parameterType="flumepgsink.RawLog">
+    insert into raw_logs (class, classic, ip, port, type, org_id, counts, forward_time, action, message, time) values (  #{classtype}, #{classic}, #{ip}, #{port}, #{type}, #{org_id}, #{counts}, #{forward_time}, #{action}, #{message}, #{time} )
   </insert>
 </mapper>
