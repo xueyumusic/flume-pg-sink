@@ -23,7 +23,15 @@
     select id from flumetest where id = #{id}
   </select>  -->
 
-  <insert id="insertContent" parameterType="flumepgsink.RawLog">
+  <insert id="insertRawLog" parameterType="flumepgsink.RawLog">
     insert into raw_logs (class, classic, ip, port, type, org_id, counts, forward_time, action, message, time) values (  #{classtype}, #{classic}, #{ip}, #{port}, #{type}, #{org_id}, #{counts}, #{forward_time}, #{action}, #{message}, #{time} )
+  </insert>
+
+  <insert id="insertErrorLog" parameterType="flumepgsink.ErrorType">
+    insert into error_logs (type, class_name, message, time) values ( #{type}, #{class_name}, #{message}, #{time} )
+  </insert>
+
+  <insert id="insertHttpRequest" parameterType="flumepgsink.RequestType">
+    insert into http_request_info (type, org_id, org_name, message, time) values ( #{type}, #{org_id}, #{org_name}, #{message}, #{time} )
   </insert>
 </mapper>
